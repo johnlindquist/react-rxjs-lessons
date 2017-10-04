@@ -17,15 +17,12 @@ const SimpleForm = componentFromStream(props$ => {
   const text$ = input$
     .map(e => e.target.value)
     .startWith("")
-  return props$.combineLatest(
-    text$,
-    (props, text) => (
-      <div>
-        <input type="text" onInput={input} />
-        {text}
-      </div>
-    )
-  )
+  return text$.map(text => (
+    <div>
+      <input type="text" onInput={input} />
+      {text}
+    </div>
+  ))
 })
 
 const App = () => (
