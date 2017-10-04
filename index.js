@@ -3,15 +3,37 @@ import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
 import {
   setObservableConfig,
-  componentFromStream
+  componentFromStream,
+  createEventHandler
 } from "recompose"
 
 setObservableConfig(config)
 
-const App = componentFromStream(props$ => {
-  return Observable.interval(1000).map(i => (
-    <div>{i}</div>
-  ))
+const SimpleForm = componentFromStream(props$ => {
+  const {
+    handler: input,
+    stream: input$
+  } = createEventHandler()
+  const text$ = input$
+    .map(e => e.target.value)
+    .startWith("")
+  return props$.combineLatest(
+    text$,
+    (props, text) => (
+      <div>
+        <input type="text" onInput={input} />
+        {text}
+      </div>
+    )
+  )
 })
+
+const App = () => (
+  <div>
+    <h1>Above</h1>
+    <SimpleForm />
+    <h2>Below</h2>
+  </div>
+)
 
 render(<App />, document.getElementById("app"))
