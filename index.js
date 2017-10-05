@@ -4,39 +4,48 @@ import config from "recompose/rxjsObservableConfig"
 import {
   setObservableConfig,
   componentFromStream,
-  createEventHandler
+  createEventHandler,
+  mapPropsStream
 } from "recompose"
 
 setObservableConfig(config)
 
-const Counter = componentFromStream(props$ => {
-  const {
-    handler: inc,
-    stream: inc$
-  } = createEventHandler()
-  const {
-    handler: dec,
-    stream: dec$
-  } = createEventHandler()
+const CountStream = Comp => {
+  return mapPropsStream(props$ => {
+    const {
+      handler: inc,
+      stream: inc$
+    } = createEventHandler()
+    const {
+      handler: dec,
+      stream: dec$
+    } = createEventHandler()
 
-  return Observable.merge(
-    inc$.mapTo(1),
-    dec$.mapTo(-1)
-  )
-    .scan((acc, curr) => acc + curr)
-    .startWith(0)
-    .map(value => (
-      <div>
-        <button onClick={inc}>+</button>
-        <h2>{value}</h2>
-        <button onClick={dec}>-</button>
-      </div>
-    ))
-})
+    return Observable.merge(
+      inc$.mapTo(1),
+      dec$.mapTo(-1)
+    )
+      .scan((acc, curr) => acc + curr)
+      .startWith(0)
+      .map(count => ({ count, inc, dec }))
+  })(Comp)
+}
+
+const Counter = props => (
+  <div>
+    <button onClick={props.inc}>+</button>
+    <h2>{props.count}</h2>
+    <button onClick={props.dec}>-</button>
+  </div>
+)
+
+const CounterWithCountStream = CountStream(
+  Counter
+)
 
 const App = () => (
   <div>
-    <Counter />
+    <CounterWithCountStream />
   </div>
 )
 
