@@ -20,16 +20,14 @@ const SimpleForm = componentFromStream(props$ => {
   return text$.map(text => (
     <div>
       <input type="text" onInput={input} />
-      {text}
+      <h2>{text}</h2>
     </div>
   ))
 })
 
 const App = () => (
   <div>
-    <h1>Above</h1>
     <SimpleForm />
-    <h2>Below</h2>
   </div>
 )
 
