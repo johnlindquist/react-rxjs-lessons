@@ -9,25 +9,34 @@ import {
 
 setObservableConfig(config)
 
-const SimpleForm = componentFromStream(props$ => {
+const Counter = componentFromStream(props$ => {
   const {
-    handler: input,
-    stream: input$
+    handler: inc,
+    stream: inc$
   } = createEventHandler()
-  const text$ = input$
-    .map(e => e.target.value)
-    .startWith("")
-  return text$.map(text => (
-    <div>
-      <input type="text" onInput={input} />
-      <h2>{text}</h2>
-    </div>
-  ))
+  const {
+    handler: dec,
+    stream: dec$
+  } = createEventHandler()
+
+  return Observable.merge(
+    inc$.mapTo(1),
+    dec$.mapTo(-1)
+  )
+    .scan((acc, curr) => acc + curr)
+    .startWith(0)
+    .map(value => (
+      <div>
+        <button onClick={inc}>+</button>
+        <h2>{value}</h2>
+        <button onClick={dec}>-</button>
+      </div>
+    ))
 })
 
 const App = () => (
   <div>
-    <SimpleForm />
+    <Counter />
   </div>
 )
 
