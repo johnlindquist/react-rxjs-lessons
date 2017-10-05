@@ -23,8 +23,8 @@ const Counter = componentFromStream(props$ => {
     inc$.mapTo(1),
     dec$.mapTo(-1)
   )
+    .startWith(3)
     .scan((acc, curr) => acc + curr)
-    .startWith(0)
     .map(value => (
       <div>
         <button onClick={inc}>+</button>
