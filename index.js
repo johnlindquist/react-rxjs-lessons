@@ -5,36 +5,47 @@ import {
   setObservableConfig,
   componentFromStream,
   createEventHandler,
-  mapPropsStream
+  mapPropsStream,
+  withHandlers,
+  withProps,
+  compose
 } from "recompose"
 
 import { Drawer } from "react-toolbox/lib/drawer"
+import { Button } from "react-toolbox/lib/button"
+import { Snackbar } from "react-toolbox"
 
 setObservableConfig(config)
 
-const Toggling = comp => {
-  const toggler$ = Observable.interval(1000)
-    .startWith(true)
-    .scan(bool => !bool)
+const IncrementOnClick = comp => {
+  const {
+    handler: onClick,
+    stream: onClick$
+  } = createEventHandler()
+
+  const count$ = onClick$
+    .startWith(0)
+    .scan(acc => acc + 1)
 
   return mapPropsStream(props$ => {
     return props$.combineLatest(
-      toggler$,
-      (props, active) => ({
+      count$,
+      (props, count) => ({
         ...props,
-        active
+        label: String(count),
+        onClick
       })
     )
   })(comp)
 }
 
-const TogglingDrawer = Toggling(Drawer)
+const IncrementOnClickButton = IncrementOnClick(
+  Button
+)
 
 const App = () => (
   <div>
-    <TogglingDrawer type="right">
-      <h1>Hello world!</h1>
-    </TogglingDrawer>
+    <IncrementOnClickButton raised />
   </div>
 )
 
