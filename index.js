@@ -1,3 +1,4 @@
+import "./styles.css"
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
@@ -8,44 +9,33 @@ import {
   mapPropsStream
 } from "recompose"
 
+import { Drawer } from "react-toolbox/lib/drawer"
+
 setObservableConfig(config)
 
-const CountStream = Comp => {
-  return mapPropsStream(props$ => {
-    const {
-      handler: inc,
-      stream: inc$
-    } = createEventHandler()
-    const {
-      handler: dec,
-      stream: dec$
-    } = createEventHandler()
+const Toggling = comp => {
+  const toggler$ = Observable.interval(1000)
+    .startWith(true)
+    .scan(bool => !bool)
 
-    return Observable.merge(
-      inc$.mapTo(1),
-      dec$.mapTo(-1)
+  return mapPropsStream(props$ => {
+    return props$.combineLatest(
+      toggler$,
+      (props, active) => ({
+        ...props,
+        active
+      })
     )
-      .startWith(3)
-      .scan((acc, curr) => acc + curr)
-      .map(count => ({ count, inc, dec }))
-  })(Comp)
+  })(comp)
 }
 
-const Counter = props => (
-  <div>
-    <button onClick={props.inc}>+</button>
-    <h2>{props.count}</h2>
-    <button onClick={props.dec}>-</button>
-  </div>
-)
-
-const CounterWithCountStream = CountStream(
-  Counter
-)
+const TogglingDrawer = Toggling(Drawer)
 
 const App = () => (
   <div>
-    <CounterWithCountStream />
+    <TogglingDrawer type="right">
+      <h1>Hello world!</h1>
+    </TogglingDrawer>
   </div>
 )
 
