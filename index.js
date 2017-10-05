@@ -1,4 +1,3 @@
-import "./styles.css"
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
