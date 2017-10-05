@@ -25,8 +25,8 @@ const CountStream = Comp => {
       inc$.mapTo(1),
       dec$.mapTo(-1)
     )
+      .startWith(3)
       .scan((acc, curr) => acc + curr)
-      .startWith(0)
       .map(count => ({ count, inc, dec }))
   })(Comp)
 }
