@@ -4,10 +4,16 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "faker": "^4.1.0",
+    "feathers": "^2.2.2",
+    "feathers-memory": "^1.2.1",
+    "feathers-reactive": "^0.5.3",
+    "feathers-socketio": "^2.0.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "recompose": "^0.25.1",
-    "rxjs": "^5.4.3"
+    "rxjs": "^5.4.3",
+    "socket.io-client": "^2.0.3"
   },
   "devDependencies": {
     "babel-plugin-react-require": "^3.0.0",
