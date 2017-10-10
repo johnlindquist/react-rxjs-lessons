@@ -1,37 +1,57 @@
 import { render } from "react-dom"
-import { Observable } from "rxjs"
+import { Observable, BehaviorSubject } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
 import {
   setObservableConfig,
-  componentFromStream
+  componentFromStream,
+  mapPropsStream,
+  createEventHandler
 } from "recompose"
-
-import feathers from "feathers/client"
-import socketio from "feathers-socketio/client"
-import feathersRx from "feathers-reactive"
-import io from "socket.io-client"
 
 setObservableConfig(config)
 
-const socket = io("http://localhost:3030")
-const app = feathers()
-  .configure(socketio(socket))
-  .configure(feathersRx({ idField: "id" }))
-const messages = app.service("messages")
+const Foo = store$ => {
+  const {
+    handler: onClick,
+    stream: onClick$
+  } = createEventHandler()
 
-const latestMessage$ = messages.watch().get(0)
+  onClick$.subscribe(store$)
 
-latestMessage$.subscribe(
-  console.log.bind(console)
+  return mapPropsStream(props$ => {
+    return props$.combineLatest(
+      store$,
+      (props, count) => {
+        return {
+          count,
+          onClick,
+          ...props
+        }
+      }
+    )
+  })
+}
+
+const Bar = ({ onClick, count, i }) => (
+  <div onClick={onClick} key={i}>
+    Hello there, {count}
+  </div>
 )
 
-const App = componentFromStream(props$ => {
-  return latestMessage$.map(person => (
-    <div>
-      <h2>{person.name}</h2>
-      <p>{person.email}</p>
-    </div>
-  ))
-})
+const store$ = new BehaviorSubject(4).scan(
+  acc => acc + 1
+)
 
-render(<App />, document.getElementById("app"))
+const Comp = Foo(store$)(Bar)
+
+render(
+  <div>
+    <Comp />
+    <Comp />
+    <Comp />
+    <Comp />
+    <Comp />
+    <Comp />
+  </div>,
+  document.getElementById("app")
+)
