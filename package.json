@@ -9,6 +9,7 @@
     "feathers-memory": "^1.2.1",
     "feathers-reactive": "^0.5.3",
     "feathers-socketio": "^2.0.0",
+    "immutable": "^4.0.0-rc.7",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "recompose": "^0.25.1",

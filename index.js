@@ -1,57 +1,64 @@
 import { render } from "react-dom"
 import { Observable, BehaviorSubject } from "rxjs"
-import config from "recompose/rxjsObservableConfig"
+import crap from "recompose/rxjsObservableConfig"
 import {
   setObservableConfig,
   componentFromStream,
   mapPropsStream,
-  createEventHandler
+  createEventHandler,
+  withProps,
+  compose
 } from "recompose"
 
-setObservableConfig(config)
+import { createStore } from "staunch-store"
 
-const Foo = store$ => {
-  const {
-    handler: onClick,
-    stream: onClick$
-  } = createEventHandler()
+setObservableConfig(crap)
 
-  onClick$.subscribe(store$)
-
-  return mapPropsStream(props$ => {
-    return props$.combineLatest(
-      store$,
-      (props, count) => {
-        return {
-          count,
-          onClick,
-          ...props
-        }
-      }
-    )
-  })
-}
-
+const Foo = mapPropsStream(props$ =>
+  props$.switchMap(props =>
+    props.count$.map(count => ({
+      ...props,
+      count
+    }))
+  )
+)
 const Bar = ({ onClick, count, i }) => (
   <div onClick={onClick} key={i}>
     Hello there, {count}
   </div>
 )
 
-const store$ = new BehaviorSubject(4).scan(
-  acc => acc + 1
-)
+const state = {
+  count: 0
+}
 
-const Comp = Foo(store$)(Bar)
+const reducers = (state, action) => {
+  switch (action.type) {
+    case "INC":
+      return state.update("count", count => count + 1)
+    default:
+      return state
+  }
+}
+
+const config = { state, reducers }
+
+const store = createStore(config)
+
+store
+  .changes()
+  .subscribe(state => console.log(state.toJS()))
+
+const Comp = compose(
+  withProps({
+    onClick: () => store.dispatch({ type: "INC" })
+  }),
+  Foo
+)(Bar)
 
 render(
   <div>
-    <Comp />
-    <Comp />
-    <Comp />
-    <Comp />
-    <Comp />
-    <Comp />
+    <Comp count$={store.changes("count")} />
   </div>,
   document.getElementById("app")
 )
