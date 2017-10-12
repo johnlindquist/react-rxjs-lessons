@@ -9,15 +9,17 @@ import {
 setObservableConfig(rxjsConfig)
 
 const App = componentFromStream(props$ =>
-  Observable.ajax(
-    "https://jsonplaceholder.typicode.com/users/1"
+  props$.switchMap(({ id }) =>
+    Observable.ajax(
+      `https://jsonplaceholder.typicode.com/users/${id}`
+    )
+      .pluck("response")
+      .map(({ name, email }) => (
+        <div>
+          {name} - {email}
+        </div>
+      ))
   )
-    .map(({ response }) => response)
-    .map(({ name, email }) => (
-      <div>
-        {name} - {email}
-      </div>
-    ))
 )
 
-render(<App />, document.getElementById("app"))
+render(<App id={2} />, document.getElementById("app"))
