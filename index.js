@@ -12,16 +12,10 @@ import { createStore } from "staunch-store"
 import { fromJS } from "immutable"
 
 //#region utils
-const createMapStateStream = store => (
-  selector,
-  dispatchToProps
-) => fn => {
-  const mappedDispatch = Object.keys(
-    dispatchToProps
-  ).reduce(
+const createMapStateStream = store => (selector, dispatchToProps) => fn => {
+  const mappedDispatch = Object.keys(dispatchToProps).reduce(
     (o, k) => ({
-      [k]: (...args) => () =>
-        store.dispatch(dispatchToProps[k](...args)),
+      [k]: (...args) => () => store.dispatch(dispatchToProps[k](...args)),
       ...o
     }),
     {}
@@ -59,8 +53,7 @@ const state = {
   ]
 }
 
-const getIndexById = (list, id) =>
-  list.findIndex(item => item.get("id") === id)
+const getIndexById = (list, id) => list.findIndex(item => item.get("id") === id)
 
 const reducers = [
   {
@@ -120,11 +113,7 @@ const mapTodosStream = (props$, todos$) => {
   }))
 }
 
-const TodoList = ({
-  todos,
-  toggleComplete,
-  removeTodo
-}) => (
+const TodoList = ({ todos, toggleComplete, removeTodo }) => (
   <div>
     <ul>
       {todos.map(todo => (
@@ -140,27 +129,21 @@ const TodoList = ({
   </div>
 )
 
-const TodosListWithStream = connectTodosStream(
-  mapTodosStream
-)(TodoList)
+const TodosListWithStream = connectTodosStream(mapTodosStream)(TodoList)
 
 const connectAdderStream = mapStateStream("todos", {
   addTodo
 })
 
 const mapAdderStream = (props$, todos$) => {
-  const {
-    handler: updateText,
-    stream: updateText$
-  } = createEventHandler()
+  const { handler: updateText, stream: updateText$ } = createEventHandler()
 
-  const text$ = updateText$
-    .map(event => event.target.value)
-    .startWith("")
-  const adder$ = props$.combineLatest(
-    text$,
-    (props, text) => ({ ...props, text, updateText })
-  )
+  const text$ = updateText$.map(event => event.target.value).startWith("")
+  const adder$ = props$.combineLatest(text$, (props, text) => ({
+    ...props,
+    text,
+    updateText
+  }))
 
   return adder$
 }
@@ -171,9 +154,7 @@ const TodoAdder = ({ addTodo, text, updateText }) => (
   </div>
 )
 
-const TodoAdderWithStream = connectAdderStream(
-  mapAdderStream
-)(TodoAdder)
+const TodoAdderWithStream = connectAdderStream(mapAdderStream)(TodoAdder)
 
 render(
   <div>
