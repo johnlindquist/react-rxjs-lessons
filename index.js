@@ -8,8 +8,8 @@ import {
 
 setObservableConfig(rxjsConfig)
 
-const App = componentFromStream(props$ => {
-  return Observable.ajax(
+const App = componentFromStream(props$ =>
+  Observable.ajax(
     "https://jsonplaceholder.typicode.com/users/1"
   )
     .map(({ response }) => response)
@@ -18,6 +18,6 @@ const App = componentFromStream(props$ => {
         {name} - {email}
       </div>
     ))
-})
+)
 
 render(<App />, document.getElementById("app"))
