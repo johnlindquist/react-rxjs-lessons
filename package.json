@@ -15,7 +15,7 @@
     "babel-preset-react-app": "^3.0.3"
   },
   "scripts": {
-    "start": "npx poi src/index.js",
+    "start": "npx poi index.js",
     "test":
       "echo \"Error: no test specified\" && exit 1"
   },
