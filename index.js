@@ -43,6 +43,9 @@ const App = () => (
   <div>
     <Card name="John" homeworld="Earth" />
     <CardStream id={1} />
+    <CardStream id={12} />
+    <CardStream id={10} />
+    <CardStream id={24} />
   </div>
 )
 
