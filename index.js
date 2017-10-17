@@ -1,3 +1,4 @@
+//#region imports and config
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
@@ -7,11 +8,34 @@ import {
 } from "recompose"
 
 setObservableConfig(config)
+//#endregion
 
-const App = componentFromStream(props$ => {
-  return Observable.interval(1000).map(i => (
-    <div>{i}</div>
-  ))
-})
+const App = props => (
+  <div>
+    <h1>{props.message}</h1>
+  </div>
+)
 
-render(<App />, document.getElementById("app"))
+const createTypewriter = (message, speed) =>
+  Observable.zip(
+    Observable.from(message),
+    Observable.interval(speed),
+    letter => letter
+  ).scan((acc, curr) => acc + curr)
+
+const StreamingApp = componentFromStream(props$ =>
+  props$
+    .switchMap(props =>
+      createTypewriter(props.message, props.speed)
+    )
+    .map(message => ({ message }))
+    .map(App)
+)
+
+render(
+  <StreamingApp
+    message="I'm a streaming App!"
+    speed={1000}
+  />,
+  document.getElementById("app")
+)
