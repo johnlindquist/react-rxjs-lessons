@@ -1,3 +1,4 @@
+//#region import and config
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import rxjsConfig from "recompose/rxjsObservableConfig"
@@ -7,19 +8,42 @@ import {
 } from "recompose"
 
 setObservableConfig(rxjsConfig)
+//#endregion
+const personById = id =>
+  `https://swapi.co/api/people/${id}`
 
-const App = componentFromStream(props$ =>
-  props$.switchMap(({ id }) =>
-    Observable.ajax(
-      `https://jsonplaceholder.typicode.com/users/${id}`
-    )
-      .pluck("response")
-      .map(({ name, email }) => (
-        <div>
-          {name} - {email}
-        </div>
-      ))
-  )
+const Card = props => (
+  <div>
+    <h1>{props.name}</h1>
+    <h2>{props.homeworld}</h2>
+  </div>
 )
 
-render(<App id={2} />, document.getElementById("app"))
+const loadById = id =>
+  Observable.ajax(personById(id))
+    .pluck("response")
+    .switchMap(
+      response =>
+        Observable.ajax(response.homeworld)
+          .pluck("response")
+          .startWith({ name: "" }),
+      (person, homeworld) => ({
+        ...person,
+        homeworld: homeworld.name
+      })
+    )
+
+const CardStream = componentFromStream(props$ =>
+  props$
+    .switchMap(props => loadById(props.id))
+    .map(Card)
+)
+
+const App = () => (
+  <div>
+    <Card name="John" homeworld="Earth" />
+    <CardStream id={1} />
+  </div>
+)
+
+render(<App />, document.getElementById("app"))
