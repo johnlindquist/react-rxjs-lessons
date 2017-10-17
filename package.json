@@ -10,11 +10,14 @@
     "rxjs": "^5.4.3"
   },
   "devDependencies": {
+    "poi": "^9.3.10",
     "babel-plugin-react-require": "^3.0.0",
     "babel-preset-react-app": "^3.0.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx poi index.js",
+    "test":
+      "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
