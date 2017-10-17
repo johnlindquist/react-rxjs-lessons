@@ -1,3 +1,4 @@
+//#region imports and config
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
@@ -8,26 +9,36 @@ import {
 } from "recompose"
 
 setObservableConfig(config)
+//#endregion
 
-const SimpleForm = componentFromStream(props$ => {
-  const {
-    handler: input,
-    stream: input$
-  } = createEventHandler()
-  const text$ = input$
-    .map(e => e.target.value)
-    .startWith("")
-  return text$.map(text => (
-    <div>
-      <input type="text" onInput={input} />
-      <h2>{text}</h2>
-    </div>
-  ))
-})
+const SimpleForm = ({ text, onInput }) => (
+  <div>
+    <input type="text" onInput={onInput} />
+    <h2>{text}</h2>
+  </div>
+)
+
+const SimpleFormStream = componentFromStream(
+  props$ => {
+    const {
+      stream: onInput$,
+      handler: onInput
+    } = createEventHandler()
+
+    const text$ = onInput$
+      .map(e => e.target.value)
+      .delay(500)
+      .startWith("")
+
+    return text$
+      .map(text => ({ text, onInput }))
+      .map(SimpleForm)
+  }
+)
 
 const App = () => (
   <div>
-    <SimpleForm />
+    <SimpleFormStream />
   </div>
 )
 
