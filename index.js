@@ -4,48 +4,46 @@ import config from "recompose/rxjsObservableConfig"
 import {
   setObservableConfig,
   componentFromStream,
-  createEventHandler,
-  mapPropsStream
+  createEventHandler
 } from "recompose"
 
 setObservableConfig(config)
 
-const CountStream = Comp => {
-  return mapPropsStream(props$ => {
-    const {
-      handler: inc,
-      stream: inc$
-    } = createEventHandler()
-    const {
-      handler: dec,
-      stream: dec$
-    } = createEventHandler()
-
-    return Observable.merge(
-      inc$.mapTo(1),
-      dec$.mapTo(-1)
-    )
-      .startWith(3)
-      .scan((acc, curr) => acc + curr)
-      .map(count => ({ count, inc, dec }))
-  })(Comp)
-}
-
-const Counter = props => (
+const Counter = ({ value, onInc, onDec }) => (
   <div>
-    <button onClick={props.inc}>+</button>
-    <h2>{props.count}</h2>
-    <button onClick={props.dec}>-</button>
+    <button onClick={onInc}>+</button>
+    <h2>{value}</h2>
+    <button onClick={onDec}>-</button>
   </div>
 )
 
-const CounterWithCountStream = CountStream(
-  Counter
+const CounterStream = componentFromStream(
+  props$ => {
+    const {
+      handler: onInc,
+      stream: onInc$
+    } = createEventHandler()
+    const {
+      handler: onDec,
+      stream: onDec$
+    } = createEventHandler()
+
+    return props$.switchMap(props =>
+      Observable.merge(
+        onInc$.mapTo(1),
+        onDec$.mapTo(-1)
+      )
+        .startWith(props.value)
+        .scan((acc, curr) => acc + curr)
+        .map(value => ({ value, onInc, onDec }))
+        .map(Counter)
+    )
+  }
 )
 
 const App = () => (
   <div>
-    <CounterWithCountStream />
+    <CounterStream value={3} />
   </div>
 )
 
