@@ -1,4 +1,4 @@
-import { cloneElement } from "react"
+import { cloneElement, Children } from "react"
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
@@ -15,6 +15,18 @@ const Counter = ({ value, onInc, onDec }) => (
     <button onClick={onInc}>+</button>
     <h2>{value}</h2>
     <button onClick={onDec}>-</button>
+  </div>
+)
+
+const WeirdCounter = ({
+  value,
+  onInc,
+  onDec
+}) => (
+  <div>
+    <span onClick={onInc}>+</span>
+    <h1>{value}</h1>
+    <span onClick={onDec}>-</span>
   </div>
 )
 
@@ -43,7 +55,9 @@ const CounterStream = componentFromStream(
           onDec
         }))
         .map(props =>
-          cloneElement(props.children, props)
+          Children.map(props.children, child =>
+            cloneElement(child, props)
+          )
         )
     )
   }
@@ -52,6 +66,8 @@ const CounterStream = componentFromStream(
 const App = () => (
   <div>
     <CounterStream value={3}>
+      <WeirdCounter />
+      <Counter />
       <Counter />
     </CounterStream>
   </div>
