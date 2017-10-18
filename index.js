@@ -1,3 +1,4 @@
+import { cloneElement } from "react"
 import { render } from "react-dom"
 import { Observable } from "rxjs"
 import config from "recompose/rxjsObservableConfig"
@@ -35,15 +36,24 @@ const CounterStream = componentFromStream(
       )
         .startWith(props.value)
         .scan((acc, curr) => acc + curr)
-        .map(value => ({ value, onInc, onDec }))
-        .map(Counter)
+        .map(value => ({
+          ...props,
+          value,
+          onInc,
+          onDec
+        }))
+        .map(props =>
+          cloneElement(props.children, props)
+        )
     )
   }
 )
 
 const App = () => (
   <div>
-    <CounterStream value={3} />
+    <CounterStream value={3}>
+      <Counter />
+    </CounterStream>
   </div>
 )
 
