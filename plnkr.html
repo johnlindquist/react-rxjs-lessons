@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<script src="https://unpkg.com/systemjs@0.20.17/dist/system.src.js"></script>
+
+<body>
+  <div id="app"></div>
+  <script type="text/javascript" charset="utf-8">
+    console.clear()
+  </script>
+  <script>
+    SystemJS.config({
+      map: {
+        "plugin-babel": "https://unpkg.com/systemjs-plugin-babel@0.0.25/plugin-babel.js",
+        "systemjs-babel-build": "https://unpkg.com/systemjs-plugin-babel@0.0.25/systemjs-babel-browser.js",
+        "babel-preset-react": "https://rawgit.com/eggheadio/plnkr-bundles/master/babel-preset-react.js",
+        "babel-plugin-react-require": "https://unpkg.com/babel-plugin-react-require@3.0.0/lib/index.js",
+        "react": "https://unpkg.com/react@16.0.0/umd/react.development.js",
+        "react-dom": "https://unpkg.com/react-dom@16.0.0/umd/react-dom.development.js",
+        "recompose": "https://unpkg.com/recompose@0.26.0/build/Recompose.js",
+        "rxjs": "https://unpkg.com/rxjs@5.4.3/bundles/Rx.js",
+        "recompose/rxjsObservableConfig": "https://rawgit.com/eggheadio/plnkr-bundles/master/rxjsObservableConfig.js"
+      },
+      transpiler: "plugin-babel",
+      meta: {
+        "*.js": {
+          esModule: true,
+          babelOptions: {
+            presets: ["babel-preset-react"],
+            plugins: ["babel-plugin-react-require"]
+          }
+        }
+      }
+    })
+    SystemJS.import("index.js");
+  </script>
+</body>
