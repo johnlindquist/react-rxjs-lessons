@@ -54,20 +54,21 @@ const load = mapPropsStream(props$ =>
   )
 )
 
-const typewriter = mapPropsStream(props$ =>
-  props$.switchMap(
-    props =>
-      Observable.zip(
-        Observable.from(props.person.name),
-        Observable.interval(100),
-        letter => letter
-      ).scan((acc, curr) => acc + curr),
-    (props, name) => ({
-      ...props,
-      person: { ...props.person, name }
-    })
+import * as R from "ramda"
+const personName = R.lensPath(["person", "name"])
+
+const typewriter = lens =>
+  mapPropsStream(props$ =>
+    props$.switchMap(
+      props =>
+        Observable.zip(
+          Observable.from(R.view(lens, props)),
+          Observable.interval(100),
+          letter => letter
+        ).scan((acc, curr) => acc + curr),
+      R.flip(R.set(lens))
+    )
   )
-)
 
 const Counter = props => (
   <div>
@@ -81,12 +82,20 @@ const Counter = props => (
 const CounterWithPersonLoader = compose(
   count,
   load,
-  typewriter
+  typewriter(personName)
 )(Counter)
+
+const dateLens = R.lensProp("date")
+const DateTypewriter = compose(
+  typewriter(dateLens)
+)(props => <div>{props.date}</div>)
 
 const App = () => (
   <div>
     <CounterWithPersonLoader />
+    <DateTypewriter
+      date={new Date().toDateString()}
+    />
   </div>
 )
 
