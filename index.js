@@ -10,6 +10,8 @@ import {
   compose
 } from "recompose"
 
+import * as R from "ramda"
+
 setObservableConfig(config)
 //#endregion
 
@@ -54,20 +56,23 @@ const load = mapPropsStream(props$ =>
   )
 )
 
-const typewriter = mapPropsStream(props$ =>
-  props$.switchMap(
-    props =>
-      Observable.zip(
-        Observable.from(props.person.name),
-        Observable.interval(100),
-        letter => letter
-      ).scan((acc, curr) => acc + curr),
-    (props, name) => ({
-      ...props,
-      person: { ...props.person, name }
-    })
+const personNameLens = R.lensPath([
+  "person",
+  "name"
+])
+
+const typewriter = lens =>
+  mapPropsStream(props$ =>
+    props$.switchMap(
+      props =>
+        Observable.zip(
+          Observable.from(R.view(lens, props)),
+          Observable.interval(100),
+          letter => letter
+        ).scan((acc, curr) => acc + curr),
+      (props, name) => R.set(lens, name, props)
+    )
   )
-)
 
 const Counter = props => (
   <div>
@@ -81,11 +86,20 @@ const Counter = props => (
 const CounterWithPersonLoader = compose(
   count,
   load,
-  typewriter
+  typewriter(personNameLens)
 )(Counter)
+
+const DateDisplay = props => <h1>{props.date}</h1>
+const dateLens = R.lensProp("date")
+const DateTypewriter = typewriter(dateLens)(
+  DateDisplay
+)
 
 const App = () => (
   <div>
+    <DateTypewriter
+      date={new Date().toDateString()}
+    />
     <CounterWithPersonLoader />
   </div>
 )
