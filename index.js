@@ -1,6 +1,35 @@
 import "./styles.css"
 import React from "react"
 import ReactDOM from "react-dom"
+import { Observable } from "rxjs"
+import {
+  setObservableConfig,
+  componentFromStream,
+  createEventHandler
+} from "recompose"
+import rxjsConfig from "recompose/rxjsObservableConfig"
+setObservableConfig(rxjsConfig)
+
+const ToggleStream = componentFromStream(props$ => {
+  const {
+    handler: toggle,
+    stream: toggle$
+  } = createEventHandler()
+
+  const on$ = Observable.merge(
+    toggle$,
+    Observable.interval(1000)
+  )
+    .startWith(true)
+    .scan(bool => !bool)
+
+  return props$.combineLatest(on$, (props, on) =>
+    props.render({
+      on,
+      toggle
+    })
+  )
+})
 
 class Toggle extends React.Component {
   static defaultProps = { onToggle: () => {} }
@@ -26,7 +55,7 @@ function MyToggle({ on, toggle }) {
 
 function App() {
   return (
-    <Toggle
+    <ToggleStream
       onToggle={on => console.log("toggle", on)}
       render={({ on, toggle }) => (
         <div>

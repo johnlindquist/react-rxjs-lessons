@@ -4,7 +4,8 @@
   box-sizing: inherit;
 }
 body {
-  font-family: "Antic Slab", serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana,
+    sans-serif;
 }
 hr {
   width: 100%;
